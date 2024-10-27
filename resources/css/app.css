@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Antonio';
+    src: url('../fonts/Antonio-VariableFont_wght.ttf') format('truetype');
+}
