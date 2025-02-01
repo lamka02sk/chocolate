@@ -143,6 +143,7 @@ class InvoiceResource extends Resource
                     ->dateTime()
             ])
             ->defaultSort('id', 'desc')
+            ->defaultPaginationPageOption(50);
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
