@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\InvoiceResource\Widgets\IncomeExpensesChart;
 use App\Filament\Widgets\DocumentsOverview;
 use App\Filament\Widgets\InvoicesOverview;
 use Filament\Enums\ThemeMode;
@@ -64,7 +65,8 @@ class ChocoPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
                 InvoicesOverview::class,
-                DocumentsOverview::class,
+                // DocumentsOverview::class,
+                IncomeExpensesChart::class
             ])
             ->middleware([
                 EncryptCookies::class,
