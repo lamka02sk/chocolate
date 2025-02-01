@@ -24,21 +24,21 @@ class IncomeExpensesChart extends ChartWidget
             $months[] = now()->subMonths($i);
         }
 
-        $expenses = Invoice::select(DB::raw('strftime(\'%Y-%m\', date_paid) as month'))
-            ->withSum('items', 'price')
+        $expenses = Invoice::select(DB::raw('strftime(\'%Y-%m\', date_paid) as month, SUM(invoice_items.price * invoice_items.quantity) as total'))
+            ->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
             ->where('type', 'received')
             ->where('date_paid', '>=', Carbon::createFromDate($months[0]->year, $months[0]->month))
             ->groupBy('month')
-            ->pluck('items_sum_price', 'month');
+            ->pluck('total', 'month');
 
         $expenses = collect($months)->keyBy(fn ($month) => $month->format('Y-m'))->map(fn ($month) => $expenses->get($month->format('Y-m')) ?? 0);
 
-        $incomes = Invoice::select(DB::raw('strftime(\'%Y-%m\', date_issue) as month'))
-            ->withSum('items', 'price')
+        $incomes = Invoice::select(DB::raw('strftime(\'%Y-%m\', date_issue) as month, SUM(invoice_items.price * invoice_items.quantity) as total'))
+            ->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
             ->where('type', 'issued')
             ->where('date_issue', '>=', Carbon::createFromDate($months[0]->year, $months[0]->month))
             ->groupBy('month')
-            ->pluck('items_sum_price', 'month');
+            ->pluck('total', 'month');
 
         $incomes = collect($months)->keyBy(fn ($month) => $month->format('Y-m'))->map(fn ($month) => $incomes->get($month->format('Y-m'))?? 0);
 
