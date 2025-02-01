@@ -4,6 +4,7 @@ namespace App\Filament\Resources\InvoiceResource\Widgets;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class IncomeExpensesChart extends ChartWidget
 {
-    protected static ?string $heading = 'Príjmy / Výdavky';
+    protected static ?string $heading = 'Income & Expenses';
 
     protected int | string | array $columnSpan = 2;
 
@@ -45,13 +46,13 @@ class IncomeExpensesChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Príjmy',
+                    'label' => 'Income',
                     'data' => $incomes,
                     'backgroundColor' => '#22A95D',
                     'borderWidth' => 0
                 ],
                 [
-                    'label' => 'Výdavky',
+                    'label' => 'Expenses',
                     'data' => $expenses,
                     'backgroundColor' => '#B7192F',
                     'borderWidth' => 0
@@ -63,12 +64,14 @@ class IncomeExpensesChart extends ChartWidget
 
     protected function getOptions(): RawJs
     {
+        $currency = Setting::where('key', 'currency')->value('value') ?? '€';
+
         return RawJs::make(<<<JS
             {
                 scales: {
                     y: {
                         ticks: {
-                            callback: (value) => '€' + value
+                            callback: (value) => '$currency' + value
                         }
                     }
                 }
