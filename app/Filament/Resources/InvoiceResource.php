@@ -142,6 +142,7 @@ class InvoiceResource extends Resource
                     ->sortable()
                     ->dateTime()
             ])
+            ->defaultSort('id', 'desc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
