@@ -87,7 +87,7 @@ class InvoiceResource extends Resource
 
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make("title")->searchable()->sortable(),
+                Tables\Columns\TextColumn::make("title")->searchable(['title', 'tags'])->sortable(),
                 Tables\Columns\TextColumn::make("type")
                     ->badge()
                     ->color(function (Invoice $invoice) {
