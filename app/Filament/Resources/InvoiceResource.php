@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InvoiceResource\Pages;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Setting;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class InvoiceResource extends Resource
@@ -111,14 +113,31 @@ class InvoiceResource extends Resource
                 Tables\Columns\TextColumn::make("date_paid")->searchable()->sortable()->date(),
                 Tables\Columns\TextColumn::make("updated_at")->searchable()->sortable()->dateTime(),
             ])
-            ->defaultSort("id", "desc")
+            ->defaultSort("date_paid", "desc")
             ->defaultPaginationPageOption(50)
             ->filters([Tables\Filters\TrashedFilter::make()])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ViewAction::make()->iconButton(),
+                Tables\Actions\ReplicateAction::make()->iconButton()
+                    ->successRedirectUrl(fn (Model $replica): string => route('filament.choco.resources.invoices.edit', [
+                        'record' => $replica,
+                    ]))
+                    ->after(function (Model $replica, Invoice $invoice): void {
+                        /** @var InvoiceItem $item */
+                        foreach($invoice->items as $item) {
+                            InvoiceItem::create([
+                                'invoice_id' => $replica->id,
+                                'name' => $item->name,
+                                'quantity' => $item->quantity,
+                                'unit' => $item->unit,
+                                'price' => $item->price,
+                                'sort' => $item->sort,
+                            ]);
+                        }
+                    }),
+                Tables\Actions\EditAction::make()->iconButton(),
+                Tables\Actions\DeleteAction::make()->iconButton(),
+                Tables\Actions\RestoreAction::make()->iconButton(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -142,7 +161,7 @@ class InvoiceResource extends Resource
             "index" => Pages\ListInvoices::route("/"),
             "create" => Pages\CreateInvoice::route("/create"),
             "view" => Pages\ViewInvoice::route("/{record}"),
-            "edit" => Pages\EditInvoice::route("/{record}/edit"),
+            "edit" => Pages\EditInvoice::route("/{record}/edit")
         ];
     }
 
